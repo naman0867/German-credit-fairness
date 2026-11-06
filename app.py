@@ -40,13 +40,15 @@ inputs = {}
 left, right = st.columns(2)
 for i, col in enumerate(COLUMNS[:-1]):
     box = left if i % 2 == 0 else right
-    if df[col].dtype == "object":
-        inputs[col] = box.selectbox(col.replace("_", " ").title(), sorted(df[col].unique()))
+    label = col.replace("_", " ").title()
+    if df[col].dtype == "object" or df[col].nunique() <= 5:
+        options = sorted(df[col].unique().tolist())
+        inputs[col] = box.selectbox(label, options)
     else:
-        inputs[col] = box.number_input(
-            col.replace("_", " ").title(),
-            int(df[col].min()), int(df[col].max()), int(df[col].median()),
-        )
+        lo = int(df[col].min())
+        hi = int(df[col].max())
+        mid = int(df[col].median())
+        inputs[col] = box.number_input(label, min_value=lo, max_value=hi, value=mid, step=1)
 
 if st.button("Predict"):
     row = pd.get_dummies(pd.DataFrame([inputs])).reindex(columns=cols, fill_value=0)
