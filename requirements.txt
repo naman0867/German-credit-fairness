@@ -1,8 +1,8 @@
-   scikit-learn
-   xgboost
-   fairlearn
-   pandas
-   numpy
-   matplotlib
-   seaborn
 streamlit
+scikit-learn
+xgboost
+fairlearn
+pandas
+numpy
+matplotlib
+seaborn
