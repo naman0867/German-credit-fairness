@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -41,14 +42,17 @@ left, right = st.columns(2)
 for i, col in enumerate(COLUMNS[:-1]):
     box = left if i % 2 == 0 else right
     label = col.replace("_", " ").title()
-    if df[col].dtype == "object" or df[col].nunique() <= 5:
+    if is_numeric_dtype(df[col]) and df[col].nunique() > 5:
+        inputs[col] = box.number_input(
+            label,
+            min_value=int(df[col].min()),
+            max_value=int(df[col].max()),
+            value=int(df[col].median()),
+            step=1,
+        )
+    else:
         options = sorted(df[col].unique().tolist())
         inputs[col] = box.selectbox(label, options)
-    else:
-        lo = int(df[col].min())
-        hi = int(df[col].max())
-        mid = int(df[col].median())
-        inputs[col] = box.number_input(label, min_value=lo, max_value=hi, value=mid, step=1)
 
 if st.button("Predict"):
     row = pd.get_dummies(pd.DataFrame([inputs])).reindex(columns=cols, fill_value=0)
